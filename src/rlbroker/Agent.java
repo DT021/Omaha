@@ -23,6 +23,8 @@ import javax.swing.JPanel;
 public class Agent {
     
     /* Alex's notes:
+     * - update the discritization
+     * 
      * - Turn Equity into an array and create getters for 
      * 
      *  a. one day
@@ -78,10 +80,13 @@ public class Agent {
     JFrame frame;
     JPanel panel;
     JLabel label;
-    double[] stateSpace = new double [10*10*10*3];
+    double[] stateSpace;
     
     public Agent(String Quote) {
         setName(Quote);
+        
+        Calendar calendar = Calendar.getInstance();
+        stateSpace = new double[(calendar.get(Calendar.YEAR)-1900)*400];
         
         label = new JLabel();
         label.setVisible(true);
@@ -96,8 +101,6 @@ public class Agent {
         equityGrapher = new Grapher("Agent Equity", "Equity", "Time Steps", "Equity");
         equityGrapher.setVisible(true);
         readSpace();
-        
-        Calendar calendar = Calendar.getInstance(); 
         fetchHistoricData(1, 1, 1900, calendar.get( // starts initially at the 1/1/1900
                 Calendar.DAY_OF_MONTH),
                 calendar.get(Calendar.MONTH),
