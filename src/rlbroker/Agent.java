@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Calendar;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,7 +21,21 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class Agent {
-
+    
+    /* Alex's notes:
+     * - Turn Equity into an array and create getters for 
+     * 
+     *  a. one day
+     *  b. five days
+     *  c. 30 days
+     *  d. 90 days
+     *  e. 365 days
+     *  f. 2 years
+     *  g. maximum
+     * 
+     */
+    
+    
     public enum Actions {
 
         BUY(0), SELL(1), HOLD(2);
@@ -30,6 +45,7 @@ public class Agent {
             this.index = index;
         }
     };
+    
     private double high;
     private double low;
     private double open;
@@ -39,9 +55,9 @@ public class Agent {
     private int indexOfBestMove;
     private int indexOfPreviousBestMove;
     private int state;
-    private double[] highInput = new double[5000];
-    private double[] lowInput = new double[5000];
-    private double[] openInput = new double[5000];
+    private double[] highInput = new double[5000];//please make this nicer
+    private double[] lowInput = new double[5000];// please make this nicer
+    private double[] openInput = new double[5000];// please make this nicer
     private double reward;
     private Actions action;
     private String name;
@@ -64,10 +80,9 @@ public class Agent {
     JLabel label;
     double[] stateSpace = new double [10*10*10*3];
     
-    
     public Agent(String Quote) {
         setName(Quote);
-        fetchHistoricData();
+        
         label = new JLabel();
         label.setVisible(true);
         frame = new JFrame();
@@ -81,17 +96,21 @@ public class Agent {
         equityGrapher = new Grapher("Agent Equity", "Equity", "Time Steps", "Equity");
         equityGrapher.setVisible(true);
         readSpace();
+        
+        Calendar calendar = Calendar.getInstance(); 
+        fetchHistoricData(1, 1, 1900, calendar.get( // starts initially at the 1/1/1900
+                Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.YEAR));
         trainAgent();
     }
 
     public void trainAgent() {
-        setHigh(highInput[highInput.length-1]);
-        setLow(lowInput[lowInput.length-1]);
-        setOpen(openInput[openInput.length-1]);
+        
         int steps = 0;
         for (int i = (getHighInput().length - 2); i >= 0; i--) { // moving from back to front
             if (highInput[i]!= 0) {
-                 act(highInput[i], lowInput[i], openInput[i]);
+                act(highInput[i], lowInput[i], openInput[i]);
                 steps++;
                 setTimesteps(steps);
             }
@@ -123,6 +142,7 @@ public class Agent {
                 + "<br>Reward : " + getReward()
                 + "<br>Is Holding: " + isHolding 
                 + "</html>");  
+       
         frame.add(label);
         frame.repaint();
     }
@@ -276,9 +296,16 @@ public class Agent {
         
     }
     
-    public void fetchHistoricData(){
+    public void fetchHistoricData(
+            int startDay, int startMonth, int startYear, 
+            int endDay, int endMonth, int endYear
+            ){
         try {
-            URL yahoofin = new URL("http://ichart.finance.yahoo.com/table.csv?s=" + getName() + "&a=00&b=1&c=2000&d=01&e=15&f=2013&g=d.csv&ignore=.csv");
+            URL yahoofin = new URL(
+                    "http://ichart.finance.yahoo.com/table.csv?s=" + getName() + "&a=" +
+                    formatMonth(startMonth) + "&b=" + formatDay(startDay) + "&c=" + startYear +
+                    "&d=" + formatMonth(endMonth) + "&e=" + formatMonth(endMonth) + "&f=" + endYear + "&g=d.csv&ignore=.csv");
+            
             URLConnection yc = yahoofin.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
             String inputLine;
@@ -290,10 +317,19 @@ public class Agent {
                 highInput[i] = Double.parseDouble(info[2]);
                 lowInput[i] = Double.parseDouble(info[3]);
                 i++;
-            }  
+            } 
             in.close();
         } catch (Exception ex) {
             System.out.println("Error in historic fetch for " + getName());
+        }
+    }
+    
+    public String formatMonth(int month){
+        month -= 1;
+        if (month < 0) {
+            return ("0"+month);
+        }else{
+            return  "" + month;
         }
     }
     
@@ -315,7 +351,15 @@ public class Agent {
             System.out.println("Error: In the reading of stateSpace");
         }
     }
-// ***************END OF ACTOR CODE***************
+
+    public String formatDay(int day){
+        if (day < 10) {
+            return "0"+day;
+        }else{
+            return ""+day;
+        }
+    }
+//***************END OF ACTOR CODE***************
 //               Getters And Setters
     public double getHigh() {
         return high;
