@@ -57,9 +57,9 @@ public class Agent {
     private int indexOfBestMove;
     private int indexOfPreviousBestMove;
     private int state;
-    private double[] highInput = new double[5000];//please make this nicer
-    private double[] lowInput = new double[5000];// please make this nicer
-    private double[] openInput = new double[5000];// please make this nicer
+    private double[] highInput;
+    private double[] lowInput; 
+    private double[] openInput;
     private double reward;
     private Actions action;
     private String name;
@@ -86,7 +86,11 @@ public class Agent {
         setName(Quote);
         
         Calendar calendar = Calendar.getInstance();
-        stateSpace = new double[(calendar.get(Calendar.YEAR)-1900)*400];
+        stateSpace = new double[47*47*47*3];
+        
+        highInput = new double[(calendar.get(Calendar.YEAR)-1900)*400];
+        lowInput = new double[(calendar.get(Calendar.YEAR)-1900)*400];
+        openInput = new double[(calendar.get(Calendar.YEAR)-1900)*400];
         
         label = new JLabel();
         label.setVisible(true);
@@ -130,7 +134,6 @@ public class Agent {
         setLow(newLow);
         setOpen(newOpen);
 //        choose new step
-        graph();
         updateState();
         determineAction();
         
@@ -274,26 +277,84 @@ public class Agent {
     public int discritize(double value){
         if (value < -0.1) {
           return 0;
-        }else if(value >= -0.1 && value < -0.08){
+        }else if(value >= -0.1 && value < -0.095){
           return 1;
-        }else if(- 0.08 >= -0.08 && value < -0.06){
+        }else if(- 0.095 >= -0.08 && value < -0.09){
           return 2;
-        }else if(value >= -0.06 && value < -0.04){
+        }else if(value >= -0.09 && value < -0.085){
           return 3;
-        }else if(value >= -0.04 && value < -0.02){
+        }else if(value >= -0.085 && value < -0.08){
           return 4;
-        }else if(value >= -0.02 && value < 0){
+        }else if(value >= -0.08 && value < -0.075){
           return 5;
-        }else if(value >= 0 && value < 0.02){
+        }else if(value >= -0.075 && value < -0.07){
           return 6;
-        }else if(value >= 0.04 && value < 0.06){
+        }else if(value >= -0.07 && value < -0.065){
           return 7;
-        }else if(value >= 0.06 && value < 0.08){
+        }else if(value >= -0.065 && value < -0.06){
           return 8;
-        }else if(value >= 0.08 && value < 0.1  ){
+        }else if(value >= -0.06 && value < -0.055  ){
           return 9;
+        }else if(value >= -0.055 && value < -0.05  ){
+          return 10;
+        }else if (value >= -0.05 && value < -0.045  ){
+          return 11;
+        }else if (value >= -0.045 && value < -0.04  ){
+            return 12;
+        }else if (value >= -0.04 && value < -0.035  ){
+            return 13;
+        }else if (value >= -0.035 && value < -0.03  ){
+            return 14;
+        }else if (value >= -0.03 && value < -0.025  ){
+            return 15;
+        }else if (value >= -0.025 && value < -0.02  ){
+            return 16;
+        }else if (value >= -0.02 && value < -0.015  ){
+            return 17;
+        }else if (value >= -0.015 && value < -0.01  ){
+            return 18;
+        }else if (value >= -0.01 && value < -0.005  ){
+            return 19;
+        }else if (value >= -0.005 && value < 0 ){
+            return 20;
+        }else if (value >= 0 && value < 0.005  ){
+            return 21;
+        }else if (value >= 0.005 && value < 0.01  ){
+            return 30;
+        }else if (value >= 0.01 && value < 0.015  ){
+            return 31;
+        }else if (value >= 0.015 && value < 0.02  ){
+            return 32;
+        }else if (value >= 0.02 && value < 0.025  ){
+            return 33;
+        }else if (value >= 0.025 && value < 0.03  ){
+            return 34;
+        }else if (value >= 0.03 && value < 0.035  ){
+            return 35;
+        }else if (value >= 0.035 && value < 0.04  ){
+            return 36;
+        }else if (value >= 0.04 && value < 0.045  ){
+            return 37;
+        }else if (value >= 0.45 && value < 0.05  ){
+            return 38;
+        }else if (value >= 0.05 && value < 0.055  ){
+            return 39;
+        }else if (value >= 0.055 && value < 0.06  ){
+            return 40;
+        }else if (value >= 0.06 && value < 0.065  ){
+            return 41;
+        }else if (value >= 0.065 && value < 0.07  ){
+            return 42;
+        }else if (value >= 0.07 && value < 0.075  ){
+            return 43;
+        }else if (value >= 0.75 && value < 0.08  ){
+            return 44;
+        }else if (value >= 0.08 && value < 0.085  ){
+            return 45;
+        }else if (value >= 0.085 && value < 0.09  ){
+            return 46;
         }else{
-          return 9;
+            return 47;
         }
         
         
