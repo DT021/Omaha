@@ -20,5 +20,8 @@ public class RLBroker {
        
          BrokerAgent brokerAgent = new BrokerAgent();
          brokerAgent.act();
+        
+//        BrokerGUI brokerGUI = new BrokerGUI();
+//        brokerGUI.setVisible(true);
     }     
 }

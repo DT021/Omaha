@@ -99,15 +99,6 @@ public class QuoteAgent {
         frame = new JFrame();
         frame.add(label);
 
-        if (isGraphing) {
-            frame.setVisible(true);
-            label.setVisible(true);
-            rewardGrapher.setVisible(true);
-
-            openGrapher.setVisible(true);
-
-            equityGrapher.setVisible(true);
-        }
         readSpace();
         fetchHistoricData(1, 1, 1900, calendar.get( // starts initially at the 1/1/1900
                 Calendar.DAY_OF_MONTH),
@@ -422,7 +413,7 @@ public class QuoteAgent {
             }
             bufferedReader.close();
         } catch (Exception e) {
-            System.out.println("Error: In the reading of stateSpace");
+            System.out.println("Error: In the reading of stateSpace for "+getName());
         }
     }
 

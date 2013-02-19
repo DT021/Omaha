@@ -8,6 +8,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -50,7 +52,7 @@ public class BrokerAgent {
     public BrokerAgent() {
         
         quotes.add(new QuoteAgent("MMM", isGraphing));
-        quotes.add(new QuoteAgent("ATB", isGraphing));
+        quotes.add(new QuoteAgent("ATB.TO", isGraphing));
         quotes.add(new QuoteAgent("ABBV", isGraphing));
         quotes.add(new QuoteAgent("ANF", isGraphing));
         quotes.add(new QuoteAgent("ACE", isGraphing));
@@ -140,23 +142,22 @@ public class BrokerAgent {
         for (int i = 0; i < quotes.size(); i++) {
             quotes.get(i).step();
         }
-        
+        updateIndexOfBestMove();
         timesteps++;
+        gui.setVisible(true);
         while (timesteps < quotes.get(0).getHighInput().length) {            
             
             for (int i = 0; i < quotes.size(); i++) {
             quotes.get(i).step();
             }
-            
+            gui.updateValues(top5, equity);
             updateTD();
             updateStateVariables();
             writeStateSpace();
             updateState();
             updateIndexOfBestMove();
-            
-            
+            timesteps ++;
         }
-       
     }
     
     public void updateState() {
@@ -169,13 +170,48 @@ public class BrokerAgent {
     }
     
     public void updateIndexOfBestMove() {
-        for (int i = 0; i < top5; i++) {
+        int i1 = 0;
+        int i2 = 0;
+        int i3 = 0;
+        int i4 = 0;
+        int i5 = 0;
+        for (int i = 0; i < top5.size(); i++) {
+            top5.remove(i);
+            
+        }
             for (int j = 0; j < 10; j++) {
-                if (stateSpace[state +(int) Math.pow(3, 10)*j] >= stateSpace[indexOfHighest]) {
-                    indexOfHighest = state +(int) Math.pow(3, 10)*j;
+                if (stateSpace[state+(int)(Math.pow(3, 10)*j)]>= stateSpace[i1]) {
+                    indexOfBestMove = state+(int)(Math.pow(3, 10)*j);
+                    i5 = i4;
+                    i4 = i3;
+                    i3 = i2;
+                    i2 = i1;
+                    i1 = j;
                 }
+                if (stateSpace[state+(int)(Math.pow(3, 10)*j)]>= stateSpace[i2]) {
+                    i5 = i4;
+                    i4 = i3;
+                    i3 = i2;
+                    i2 = j;
+                }
+                if (stateSpace[state+(int)(Math.pow(3, 10)*j)]>= stateSpace[i3]) {
+                    i5 = i4;
+                    i4 = i3;
+                    i3 = j;
+                }
+                if (stateSpace[state+(int)(Math.pow(3, 10)*j)]>= stateSpace[i4]) {
+                    i5 = i4;
+                    i4 = j;
+                }
+                if (stateSpace[state+(int)(Math.pow(3, 10)*j)]>= stateSpace[i5]) {
+                    i5 = j;
+                }
+               top5.add(quotes.get(i1));
+               top5.add(quotes.get(i2));
+               top5.add(quotes.get(i3));
+               top5.add(quotes.get(i4));
+               top5.add(quotes.get(i5));
             }
-        }   
     }
     
     public void updateTD() {
@@ -192,17 +228,11 @@ public class BrokerAgent {
     }
     
     public void determineReward() {
-        if (action == 0) {
-            reward = goog.getReward();
-            equity += goog.getOpenInput()[timesteps + 1] - goog.getOpenInput()[timesteps];
-            
-        } else {
-            reward = aapl.getReward();
-            equity += aapl.getOpenInput()[timesteps + 1] - aapl.getOpenInput()[timesteps];
-        }
+        reward = top5.get(0).getReward();
     }
     
     public void updateStateVariables() {
+        
         indexOfPreviousBestMove = indexOfBestMove;
     }
     
