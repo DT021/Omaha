@@ -7,6 +7,7 @@ package rlbroker;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,11 +17,10 @@ import javax.swing.JPanel;
  * @author Alexandr
  */
 public class BrokerAgent {
-
-   
+    
     private int indexOfBestMove;
     private int indexOfPreviousBestMove;
-    private int state;;
+    private int state;
     private double reward;
     private double temporalDifference;
     private static double learningRate = 0.1;
@@ -28,7 +28,7 @@ public class BrokerAgent {
     private int timesteps = 0;
     private boolean isHolding;
     Grapher rewardGrapher;
-    Grapher equityGrapher; 
+    Grapher equityGrapher;    
     Grapher openGrapher;
     private double profit;
     private double equity;
@@ -40,77 +40,169 @@ public class BrokerAgent {
     JLabel label;
     double[] stateSpace;
     boolean isGraphing = false;
-    QuoteAgent goog = new QuoteAgent("GOOG", true);
-    QuoteAgent aapl = new QuoteAgent("AAPL", true);
+    
+    BrokerGUI gui = new BrokerGUI();
+    ArrayList<QuoteAgent> quotes = new ArrayList<QuoteAgent>();
+    ArrayList<QuoteAgent> top5 = new ArrayList<QuoteAgent>();
     int action;
     int startStep;
-    public BrokerAgent ( ){
-        stateSpace = new double[3*3*4];// b,s,h from both actors, then a 
-        if (goog.stateSpace.length < aapl.stateSpace.length) {
-            aapl.startStep = (aapl.stateSpace.length)-(goog.stateSpace.length);
-        }else{
-            goog.startStep = goog.stateSpace.length - goog.stateSpace.length;
+
+    public BrokerAgent() {
+        
+        quotes.add(new QuoteAgent("MMM", isGraphing));
+        quotes.add(new QuoteAgent("ATB", isGraphing));
+        quotes.add(new QuoteAgent("ABBV", isGraphing));
+        quotes.add(new QuoteAgent("ANF", isGraphing));
+        quotes.add(new QuoteAgent("ACE", isGraphing));
+        quotes.add(new QuoteAgent("ACT", isGraphing));
+        quotes.add(new QuoteAgent("ADBE", isGraphing));
+        quotes.add(new QuoteAgent("ADT", isGraphing));
+        quotes.add(new QuoteAgent("AMD", isGraphing));
+        quotes.add(new QuoteAgent("AES", isGraphing));
+        
+//        quotes.add(new QuoteAgent("AET", isGraphing));
+//        quotes.add(new QuoteAgent("AFL", isGraphing));
+//        quotes.add(new QuoteAgent("A", isGraphing));
+//        quotes.add(new QuoteAgent("GAS", isGraphing));
+//        quotes.add(new QuoteAgent("APD", isGraphing));
+//        quotes.add(new QuoteAgent("ARG", isGraphing));
+//        quotes.add(new QuoteAgent("AKAM", isGraphing));
+//        quotes.add(new QuoteAgent("AA", isGraphing));
+//        quotes.add(new QuoteAgent("ALXN", isGraphing));
+//        quotes.add(new QuoteAgent("ATI", isGraphing));
+//        
+//        quotes.add(new QuoteAgent("AGN", isGraphing));
+//        quotes.add(new QuoteAgent("ALL", isGraphing));
+//        quotes.add(new QuoteAgent("ALTR", isGraphing));
+//        quotes.add(new QuoteAgent("MO", isGraphing));
+//        quotes.add(new QuoteAgent("AMZN", isGraphing));
+//        quotes.add(new QuoteAgent("AEE", isGraphing));
+//        quotes.add(new QuoteAgent("AEP", isGraphing));
+//        quotes.add(new QuoteAgent("AXP", isGraphing));
+//        quotes.add(new QuoteAgent("AIG", isGraphing));
+//        quotes.add(new QuoteAgent("AMT", isGraphing));
+//        
+//        quotes.add(new QuoteAgent("AMP", isGraphing));
+//        quotes.add(new QuoteAgent("ABC", isGraphing));
+//        quotes.add(new QuoteAgent("AMGN", isGraphing));
+//        quotes.add(new QuoteAgent("APH", isGraphing));
+//        quotes.add(new QuoteAgent("APC", isGraphing));
+//        quotes.add(new QuoteAgent("ADI", isGraphing));
+//        quotes.add(new QuoteAgent("AON", isGraphing));
+//        quotes.add(new QuoteAgent("AIV", isGraphing));
+//        quotes.add(new QuoteAgent("APOL", isGraphing));
+//        quotes.add(new QuoteAgent("AAPL", isGraphing));
+//        
+//        quotes.add(new QuoteAgent("AMAT", isGraphing));
+//        quotes.add(new QuoteAgent("ADM", isGraphing));
+//        quotes.add(new QuoteAgent("AIZ", isGraphing));
+//        quotes.add(new QuoteAgent("T", isGraphing));
+//        quotes.add(new QuoteAgent("ADSK", isGraphing));
+//        quotes.add(new QuoteAgent("ADP", isGraphing));
+//        quotes.add(new QuoteAgent("AN", isGraphing));
+//        quotes.add(new QuoteAgent("AZO", isGraphing));
+//        quotes.add(new QuoteAgent("AVB", isGraphing));
+//        quotes.add(new QuoteAgent("AVY", isGraphing));
+//        
+//        quotes.add(new QuoteAgent("AVP", isGraphing));
+//        quotes.add(new QuoteAgent("BHI", isGraphing));
+//        quotes.add(new QuoteAgent("BLL", isGraphing));
+//        quotes.add(new QuoteAgent("BAC", isGraphing));
+//        quotes.add(new QuoteAgent("BK", isGraphing));
+//        quotes.add(new QuoteAgent("BCR", isGraphing));
+//        quotes.add(new QuoteAgent("BAX", isGraphing));
+//        quotes.add(new QuoteAgent("BBT", isGraphing));
+//        quotes.add(new QuoteAgent("BEAM", isGraphing));
+//        quotes.add(new QuoteAgent("BDX", isGraphing));
+
+        stateSpace = new double[(int)Math.pow(3, 10)*10];// b,s,h from both actors, then a 
+    }
+    
+    public void setStartingPoint(){
+        int shortestIndex = 0;
+        int shortestTime = 0;
+        
+        for (int i = 0; i < quotes.size(); i++) {
+            if (quotes.get(shortestIndex).getHighInput().length < quotes.get(i).getHighInput().length) {
+                shortestIndex = i;
+                shortestTime = quotes.get(i).getHighInput().length;
+            }
+        }
+        for (int i = 0; i < quotes.size(); i++) {
+            if (i != shortestIndex) {
+                quotes.get(i).startStep = quotes.get(i).getHighInput().length - shortestTime;
+            } 
         }
     }
     
-    public void act (){
+    public void act() {
         System.out.println("");
-        goog.step();
-        aapl.step();
-        timesteps ++;
-        while (timesteps <= goog.stateSpace.length) {            
-            goog.step();
-            aapl.step();
+        for (int i = 0; i < quotes.size(); i++) {
+            quotes.get(i).step();
         }
-        updateTD();
-        System.out.println(getEquity());
-        updateStateVariables();
-        writeStateSpace();
-        updateState();
-        updateIndexOfBestMove();
-    }
-    
-    public void updateState (){
-       int googIndex = goog.getActionNumber();
-       int applIndex = aapl.getActionNumber();
-       state = googIndex + 3*applIndex;
-    }
-    
-    public void updateIndexOfBestMove (){
-        if (getState()+(3*3)*0 > getState()+ (3*3)*1) {
-            action = 0;// buy google
-            indexOfBestMove = getState()+(3*3*0);
-        }else{
-            action = 1;// buy appl
-            indexOfBestMove = getState()+(3*3*1);
+        
+        timesteps++;
+        while (timesteps < quotes.get(0).getHighInput().length) {            
+            
+            for (int i = 0; i < quotes.size(); i++) {
+            quotes.get(i).step();
+            }
+            
+            updateTD();
+            updateStateVariables();
+            writeStateSpace();
+            updateState();
+            updateIndexOfBestMove();
+            
+            
         }
+       
     }
     
-    public void updateTD(){
+    public void updateState() {
+        int index = 0;
+        
+        for (int i = 0; i < quotes.size(); i++) {
+            index += Math.pow(3, i) * quotes.get(i).getActionNumber();
+        }
+        state = index;
+    }
+    
+    public void updateIndexOfBestMove() {
+        for (int i = 0; i < top5; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (stateSpace[state +(int) Math.pow(3, 10)*j] >= stateSpace[indexOfHighest]) {
+                    indexOfHighest = state +(int) Math.pow(3, 10)*j;
+                }
+            }
+        }   
+    }
+    
+    public void updateTD() {
         determineReward();
         
         setTemporalDifference(
-                learningRate * 
-                (getReward() +
-                discountRate *
-                stateSpace[getIndexOfBestMove()] - stateSpace[getIndexOfPreviousBestMove()]));
+                learningRate
+                * (getReward()
+                + discountRate
+                * stateSpace[getIndexOfBestMove()] - stateSpace[getIndexOfPreviousBestMove()]));
         
-        stateSpace[getIndexOfPreviousBestMove()] += learningRate * getTemporalDifference(); 
+        stateSpace[getIndexOfPreviousBestMove()] += learningRate * getTemporalDifference();        
         
     }
     
-    public void determineReward(){
+    public void determineReward() {
         if (action == 0) {
             reward = goog.getReward();
-            equity += goog.getOpenInput()[timesteps+1]-goog.getOpenInput()[timesteps];
+            equity += goog.getOpenInput()[timesteps + 1] - goog.getOpenInput()[timesteps];
             
-        }else{
+        } else {
             reward = aapl.getReward();
-            equity += aapl.getOpenInput()[timesteps+1]-aapl.getOpenInput()[timesteps];
+            equity += aapl.getOpenInput()[timesteps + 1] - aapl.getOpenInput()[timesteps];
         }
     }
     
-    public void updateStateVariables(){
+    public void updateStateVariables() {
         indexOfPreviousBestMove = indexOfBestMove;
     }
     
@@ -118,7 +210,7 @@ public class BrokerAgent {
         try {
             fileWriter = new FileWriter("StatespaceBroker.txt");
             bufferedWriter = new BufferedWriter(fileWriter);
-
+            
             for (int i = 0; i < stateSpace.length; i++) {
                 if (i == stateSpace.length - 1) {
                     bufferedWriter.write(stateSpace[i] + "");
@@ -132,6 +224,7 @@ public class BrokerAgent {
             System.out.println("Error: In creation of the statespace");
         }
     }
+
     /**
      * @return the indexOfBestMove
      */
