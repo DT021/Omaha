@@ -20,8 +20,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public class Agent {
-    
+public class QuoteAgent {
+
     /* Alex's notes:
      * - update the discritization
      * 
@@ -36,8 +36,6 @@ public class Agent {
      *  g. maximum
      * 
      */
-    
-    
     public enum Actions {
 
         BUY(0), SELL(1), HOLD(2);
@@ -47,7 +45,6 @@ public class Agent {
             this.index = index;
         }
     };
-    
     private double high;
     private double low;
     private double open;
@@ -58,7 +55,7 @@ public class Agent {
     private int indexOfPreviousBestMove;
     private int state;
     private double[] highInput;
-    private double[] lowInput; 
+    private double[] lowInput;
     private double[] openInput;
     private double reward;
     private Actions action;
@@ -81,29 +78,35 @@ public class Agent {
     JPanel panel;
     JLabel label;
     double[] stateSpace;
-    
-    public Agent(String Quote) {
+    boolean isGraphing = false;
+
+    public QuoteAgent(String Quote, boolean graph) {
         setName(Quote);
-        
+        isGraphing = graph;
         Calendar calendar = Calendar.getInstance();
-        stateSpace = new double[47*47*47*3];
-        
-        highInput = new double[(calendar.get(Calendar.YEAR)-1900)*400];
-        lowInput = new double[(calendar.get(Calendar.YEAR)-1900)*400];
-        openInput = new double[(calendar.get(Calendar.YEAR)-1900)*400];
-        
+        stateSpace = new double[(48*48*48) * 3];
+
+        highInput = new double[(calendar.get(Calendar.YEAR) - 1900) * 400];
+        lowInput = new double[(calendar.get(Calendar.YEAR) - 1900) * 400];
+        openInput = new double[(calendar.get(Calendar.YEAR) - 1900) * 400];
+
+        rewardGrapher = new Grapher(getName(), "Reward", "Reward", "Time Steps");
+        openGrapher = new Grapher("Open Price", "Open Price", "Time Steps", "Open Ptice");
+        equityGrapher = new Grapher("Agent Equity", "Equity", "Time Steps", "Equity");
         label = new JLabel();
-        label.setVisible(true);
+
         frame = new JFrame();
         frame.add(label);
-        frame.setVisible(true);
-        
-        rewardGrapher = new Grapher(getName(), "Reward", "Reward", "Time Steps");
-        rewardGrapher.setVisible(true);
-        openGrapher = new Grapher("Open Price", "Open Price", "Time Steps", "Open Ptice");
-        openGrapher.setVisible(true);
-        equityGrapher = new Grapher("Agent Equity", "Equity", "Time Steps", "Equity");
-        equityGrapher.setVisible(true);
+
+        if (isGraphing) {
+            frame.setVisible(true);
+            label.setVisible(true);
+            rewardGrapher.setVisible(true);
+
+            openGrapher.setVisible(true);
+
+            equityGrapher.setVisible(true);
+        }
         readSpace();
         fetchHistoricData(1, 1, 1900, calendar.get( // starts initially at the 1/1/1900
                 Calendar.DAY_OF_MONTH),
@@ -113,15 +116,21 @@ public class Agent {
     }
 
     public void trainAgent() {
-        
+
         int steps = 0;
         for (int i = (getHighInput().length - 2); i >= 0; i--) { // moving from back to front
-            if (highInput[i]!= 0) {
+            if (highInput[i] != 0) {
                 act(highInput[i], lowInput[i], openInput[i]);
                 steps++;
                 setTimesteps(steps);
             }
         }
+    }
+    
+    public void step(int index){
+        // this is for use by the broker to step the agent
+        act(highInput[index], highInput[index], openInput[index]);
+        setTimesteps(getTimesteps()+1);
     }
 
     public void act(double newHigh, double newLow, double newOpen) {
@@ -134,9 +143,12 @@ public class Agent {
         setLow(newLow);
         setOpen(newOpen);
 //        choose new step
+        if (isGraphing) {
+            graph();
+        }
         updateState();
         determineAction();
-        
+
         label.setText(
                 "<html>Quoting: " + name
                 + "<br>Profit: " + getProfit()
@@ -146,9 +158,9 @@ public class Agent {
                 + "<br>Precvious State value: " + stateSpace[getIndexOfPreviousBestMove()]
                 + "<br>Buy in price: " + getBuyinOpen()
                 + "<br>Reward : " + getReward()
-                + "<br>Is Holding: " + isHolding 
-                + "</html>");  
-       
+                + "<br>Is Holding: " + isHolding
+                + "</html>");
+
         frame.add(label);
         frame.repaint();
     }
@@ -185,10 +197,10 @@ public class Agent {
             setBuyinOpen(getOpen());
             setIsHolding(true);
             profit -= getOpen();
-        }else if (getAction() == Actions.SELL){
+        } else if (getAction() == Actions.SELL) {
             setIsHolding(false);
-            profit+=getOpen();
-            equity+=(getOpen()-getBuyinOpen());
+            profit += getOpen();
+            equity += (getOpen() - getBuyinOpen());
             setBuyinOpen(0);
         }
     }
@@ -200,7 +212,7 @@ public class Agent {
     }
 
     public void writeStateSpace() {
-    try {
+        try {
             fileWriter = new FileWriter("Statespace" + getName() + ".txt");
             bufferedWriter = new BufferedWriter(fileWriter);
 
@@ -225,27 +237,27 @@ public class Agent {
 
     public void determineAction() {
         if (isHolding) {
-            if (stateSpace[getState() + (1000 * Actions.SELL.index)] >= stateSpace[getState()+ (1000 * Actions.HOLD.index)]) {
+            if (stateSpace[getState() + ((48*48*48) * Actions.SELL.index)] >= stateSpace[getState() + ((48*48*48) * Actions.HOLD.index)]) {
 //                then sell
                 setAction(Actions.SELL);
-                setIndexOfBestMove(getState()+ (1000*getAction().index));
+                setIndexOfBestMove(getState() + ((48*48*48) * getAction().index));
             } else {
 //                then hold
                 setAction(Actions.HOLD);
-                setIndexOfBestMove(getState()+ (1000*getAction().index));
+                setIndexOfBestMove(getState() + ((48*48*48) * getAction().index));
             }
         } else if (!isHolding) {
-            if (stateSpace[getState() + (21 * 21 * 0)] >= stateSpace[getState() + (21 * 21 * 2)]) {
+            if (stateSpace[getState() + ((48*48*48)*Actions.BUY.index)] >= stateSpace[getState() + ((48*48*48)*Actions.HOLD.index)]) {
 //                then buy
                 setAction(Actions.BUY);
-                setIndexOfBestMove(getState()+ (1000*getAction().index));
+                setIndexOfBestMove(getState() + ((48*48*48) * getAction().index));
             } else {
 //                then hold
                 setAction(Actions.HOLD);
-                setIndexOfBestMove(getState()+ (1000*getAction().index));
+                setIndexOfBestMove(getState() + ((48*48*48) * getAction().index));
             }
         }
-        
+
         if (Math.random() < 0.1) {
             Random random = new Random();
             int randomAction = random.nextInt(3);
@@ -253,123 +265,122 @@ public class Agent {
                 randomAction = random.nextInt(3);
             }
             if (Actions.BUY.index == randomAction) {
-                setIndexOfBestMove(getState()+ (1000 * Actions.BUY.index));   
-            }else if (Actions.SELL.index == randomAction){
-                setIndexOfBestMove(getState() + 1000*Actions.SELL.index);
-            }else if(Actions.HOLD.index == randomAction){
-                setIndexOfBestMove(getState() + 1000*Actions.HOLD.index);
+                setIndexOfBestMove(getState() + (1000 * Actions.BUY.index));
+            } else if (Actions.SELL.index == randomAction) {
+                setIndexOfBestMove(getState() + 1000 * Actions.SELL.index);
+            } else if (Actions.HOLD.index == randomAction) {
+                setIndexOfBestMove(getState() + 1000 * Actions.HOLD.index);
             }
         }
     }
-    
-    public void updateState(){
-        double indexHigh = ((getHigh()-getPreviousHigh())/getPreviousHigh());
-        double indexLow = (getLow()/getPreviousLow())/getPreviousLow();
-        double indexOpen = (getOpen() - getPreviousOpen())/getPreviousOpen();
+
+    public void updateState() {
+        double indexHigh = ((getHigh() - getPreviousHigh()) / getPreviousHigh());
+        double indexLow = (getLow() / getPreviousLow()) / getPreviousLow();
+        double indexOpen = (getOpen() - getPreviousOpen()) / getPreviousOpen();
 //        finish disctitisation
-    
+
         setState(
-                (discritize(indexHigh) +
-                (10 * discritize(indexLow)) +
-                (100 * discritize(indexOpen))));
+                (discritize(indexHigh)
+                + ((48) * discritize(indexLow))
+                + ((48*48) * discritize(indexOpen))));
     }
-    
-    public int discritize(double value){
+
+    public int discritize(double value) {
         if (value < -0.1) {
-          return 0;
-        }else if(value >= -0.1 && value < -0.095){
-          return 1;
-        }else if(- 0.095 >= -0.08 && value < -0.09){
-          return 2;
-        }else if(value >= -0.09 && value < -0.085){
-          return 3;
-        }else if(value >= -0.085 && value < -0.08){
-          return 4;
-        }else if(value >= -0.08 && value < -0.075){
-          return 5;
-        }else if(value >= -0.075 && value < -0.07){
-          return 6;
-        }else if(value >= -0.07 && value < -0.065){
-          return 7;
-        }else if(value >= -0.065 && value < -0.06){
-          return 8;
-        }else if(value >= -0.06 && value < -0.055  ){
-          return 9;
-        }else if(value >= -0.055 && value < -0.05  ){
-          return 10;
-        }else if (value >= -0.05 && value < -0.045  ){
-          return 11;
-        }else if (value >= -0.045 && value < -0.04  ){
+            return 0;
+        } else if (value >= -0.1 && value < -0.095) {
+            return 1;
+        } else if (-0.095 >= -0.08 && value < -0.09) {
+            return 2;
+        } else if (value >= -0.09 && value < -0.085) {
+            return 3;
+        } else if (value >= -0.085 && value < -0.08) {
+            return 4;
+        } else if (value >= -0.08 && value < -0.075) {
+            return 5;
+        } else if (value >= -0.075 && value < -0.07) {
+            return 6;
+        } else if (value >= -0.07 && value < -0.065) {
+            return 7;
+        } else if (value >= -0.065 && value < -0.06) {
+            return 8;
+        } else if (value >= -0.06 && value < -0.055) {
+            return 9;
+        } else if (value >= -0.055 && value < -0.05) {
+            return 10;
+        } else if (value >= -0.05 && value < -0.045) {
+            return 11;
+        } else if (value >= -0.045 && value < -0.04) {
             return 12;
-        }else if (value >= -0.04 && value < -0.035  ){
+        } else if (value >= -0.04 && value < -0.035) {
             return 13;
-        }else if (value >= -0.035 && value < -0.03  ){
+        } else if (value >= -0.035 && value < -0.03) {
             return 14;
-        }else if (value >= -0.03 && value < -0.025  ){
+        } else if (value >= -0.03 && value < -0.025) {
             return 15;
-        }else if (value >= -0.025 && value < -0.02  ){
+        } else if (value >= -0.025 && value < -0.02) {
             return 16;
-        }else if (value >= -0.02 && value < -0.015  ){
+        } else if (value >= -0.02 && value < -0.015) {
             return 17;
-        }else if (value >= -0.015 && value < -0.01  ){
+        } else if (value >= -0.015 && value < -0.01) {
             return 18;
-        }else if (value >= -0.01 && value < -0.005  ){
+        } else if (value >= -0.01 && value < -0.005) {
             return 19;
-        }else if (value >= -0.005 && value < 0 ){
+        } else if (value >= -0.005 && value < 0) {
             return 20;
-        }else if (value >= 0 && value < 0.005  ){
+        } else if (value >= 0 && value < 0.005) {
             return 21;
-        }else if (value >= 0.005 && value < 0.01  ){
+        } else if (value >= 0.005 && value < 0.01) {
             return 30;
-        }else if (value >= 0.01 && value < 0.015  ){
+        } else if (value >= 0.01 && value < 0.015) {
             return 31;
-        }else if (value >= 0.015 && value < 0.02  ){
+        } else if (value >= 0.015 && value < 0.02) {
             return 32;
-        }else if (value >= 0.02 && value < 0.025  ){
+        } else if (value >= 0.02 && value < 0.025) {
             return 33;
-        }else if (value >= 0.025 && value < 0.03  ){
+        } else if (value >= 0.025 && value < 0.03) {
             return 34;
-        }else if (value >= 0.03 && value < 0.035  ){
+        } else if (value >= 0.03 && value < 0.035) {
             return 35;
-        }else if (value >= 0.035 && value < 0.04  ){
+        } else if (value >= 0.035 && value < 0.04) {
             return 36;
-        }else if (value >= 0.04 && value < 0.045  ){
+        } else if (value >= 0.04 && value < 0.045) {
             return 37;
-        }else if (value >= 0.45 && value < 0.05  ){
+        } else if (value >= 0.45 && value < 0.05) {
             return 38;
-        }else if (value >= 0.05 && value < 0.055  ){
+        } else if (value >= 0.05 && value < 0.055) {
             return 39;
-        }else if (value >= 0.055 && value < 0.06  ){
+        } else if (value >= 0.055 && value < 0.06) {
             return 40;
-        }else if (value >= 0.06 && value < 0.065  ){
+        } else if (value >= 0.06 && value < 0.065) {
             return 41;
-        }else if (value >= 0.065 && value < 0.07  ){
+        } else if (value >= 0.065 && value < 0.07) {
             return 42;
-        }else if (value >= 0.07 && value < 0.075  ){
+        } else if (value >= 0.07 && value < 0.075) {
             return 43;
-        }else if (value >= 0.75 && value < 0.08  ){
+        } else if (value >= 0.75 && value < 0.08) {
             return 44;
-        }else if (value >= 0.08 && value < 0.085  ){
+        } else if (value >= 0.08 && value < 0.085) {
             return 45;
-        }else if (value >= 0.085 && value < 0.09  ){
+        } else if (value >= 0.085 && value < 0.09) {
             return 46;
-        }else{
+        } else {
             return 47;
         }
-        
-        
+
+
     }
-    
+
     public void fetchHistoricData(
-            int startDay, int startMonth, int startYear, 
-            int endDay, int endMonth, int endYear
-            ){
+            int startDay, int startMonth, int startYear,
+            int endDay, int endMonth, int endYear) {
         try {
             URL yahoofin = new URL(
-                    "http://ichart.finance.yahoo.com/table.csv?s=" + getName() + "&a=" +
-                    formatMonth(startMonth) + "&b=" + formatDay(startDay) + "&c=" + startYear +
-                    "&d=" + formatMonth(endMonth) + "&e=" + formatMonth(endMonth) + "&f=" + endYear + "&g=d.csv&ignore=.csv");
-            
+                    "http://ichart.finance.yahoo.com/table.csv?s=" + getName() + "&a="
+                    + formatMonth(startMonth) + "&b=" + formatDay(startDay) + "&c=" + startYear
+                    + "&d=" + formatMonth(endMonth) + "&e=" + formatMonth(endMonth) + "&f=" + endYear + "&g=d.csv&ignore=.csv");
+
             URLConnection yc = yahoofin.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
             String inputLine;
@@ -381,22 +392,22 @@ public class Agent {
                 highInput[i] = Double.parseDouble(info[2]);
                 lowInput[i] = Double.parseDouble(info[3]);
                 i++;
-            } 
+            }
             in.close();
         } catch (Exception ex) {
             System.out.println("Error in historic fetch for " + getName());
         }
     }
-    
-    public String formatMonth(int month){
+
+    public String formatMonth(int month) {
         month -= 1;
         if (month < 0) {
-            return ("0"+month);
-        }else{
-            return  "" + month;
+            return ("0" + month);
+        } else {
+            return "" + month;
         }
     }
-    
+
     public void readSpace() {
         /* Created By: Alex Kearney 
          * Reads statespace from previous execution
@@ -416,15 +427,16 @@ public class Agent {
         }
     }
 
-    public String formatDay(int day){
+    public String formatDay(int day) {
         if (day < 10) {
-            return "0"+day;
-        }else{
-            return ""+day;
+            return "0" + day;
+        } else {
+            return "" + day;
         }
     }
 //***************END OF ACTOR CODE***************
 //               Getters And Setters
+
     public double getHigh() {
         return high;
     }
@@ -592,11 +604,11 @@ public class Agent {
     public void setEquity(double equity) {
         this.equity = equity;
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
@@ -616,5 +628,4 @@ public class Agent {
     public static void setDiscountRate(double aDiscountRate) {
         discountRate = aDiscountRate;
     }
-    
 }

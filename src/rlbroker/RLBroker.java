@@ -18,7 +18,9 @@ public class RLBroker {
 
     public static void main(String[] args) {
        
-            Agent agent = new Agent("GOOG");
-
+          for (int i = 0; i < 10; i++) {
+              QuoteAgent agent = new QuoteAgent("GOOG", false);
+        }
+          QuoteAgent agent = new QuoteAgent("GOOG", true);
     }     
 }
