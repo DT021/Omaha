@@ -79,6 +79,7 @@ public class QuoteAgent {
     JLabel label;
     double[] stateSpace;
     boolean isGraphing = false;
+    int startStep = 0;
 
     public QuoteAgent(String Quote, boolean graph) {
         setName(Quote);
@@ -112,11 +113,10 @@ public class QuoteAgent {
                 Calendar.DAY_OF_MONTH),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.YEAR));
-        trainAgent();
+        
     }
 
     public void trainAgent() {
-
         int steps = 0;
         for (int i = (getHighInput().length - 2); i >= 0; i--) { // moving from back to front
             if (highInput[i] != 0) {
@@ -127,9 +127,10 @@ public class QuoteAgent {
         }
     }
     
-    public void step(int index){
+    public void step(){
+        timesteps ++;
         // this is for use by the broker to step the agent
-        act(highInput[index], highInput[index], openInput[index]);
+        act(highInput[timesteps+startStep], highInput[timesteps+startStep], openInput[timesteps+startStep]);
         setTimesteps(getTimesteps()+1);
     }
 
@@ -368,8 +369,6 @@ public class QuoteAgent {
         } else {
             return 47;
         }
-
-
     }
 
     public void fetchHistoricData(
@@ -627,5 +626,9 @@ public class QuoteAgent {
 
     public static void setDiscountRate(double aDiscountRate) {
         discountRate = aDiscountRate;
+    }
+    
+    public int getActionNumber(){
+        return getAction().index;
     }
 }
