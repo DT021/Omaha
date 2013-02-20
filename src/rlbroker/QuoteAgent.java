@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import org.jfree.chart.ChartPanel;
 
 public class QuoteAgent {
 
@@ -92,19 +93,17 @@ public class QuoteAgent {
         openInput = new double[(calendar.get(Calendar.YEAR) - 1900) * 400];
 
         rewardGrapher = new Grapher(getName(), "Reward", "Reward", "Time Steps");
-        openGrapher = new Grapher("Open Price", "Open Price", "Time Steps", "Open Ptice");
+        openGrapher = new Grapher("Open Price: "+getName(), "Open Price", "Time Steps", "Open Ptice");
         equityGrapher = new Grapher("Agent Equity", "Equity", "Time Steps", "Equity");
         label = new JLabel();
 
         frame = new JFrame();
         frame.add(label);
-
         readSpace();
         fetchHistoricData(1, 1, 1900, calendar.get( // starts initially at the 1/1/1900
                 Calendar.DAY_OF_MONTH),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.YEAR));
-        
     }
 
     public void trainAgent() {
@@ -135,9 +134,9 @@ public class QuoteAgent {
         setLow(newLow);
         setOpen(newOpen);
 //        choose new step
-        if (isGraphing) {
+        
             graph();
-        }
+        
         updateState();
         determineAction();
 
@@ -147,7 +146,7 @@ public class QuoteAgent {
                 + "<br>Time step: " + getTimesteps()
                 + "<br>Action: " + getAction()
                 + "<br>Previous index: " + getIndexOfBestMove()
-                + "<br>Precvious State value: " + stateSpace[getIndexOfPreviousBestMove()]
+                + "<br>Previous State value: " + stateSpace[getIndexOfPreviousBestMove()]
                 + "<br>Buy in price: " + getBuyinOpen()
                 + "<br>Reward : " + getReward()
                 + "<br>Is Holding: " + isHolding
@@ -155,6 +154,7 @@ public class QuoteAgent {
 
         frame.add(label);
         frame.repaint();
+        
     }
 
     public void updateTD(double open) {
@@ -621,5 +621,9 @@ public class QuoteAgent {
     
     public int getActionNumber(){
         return getAction().index;
+    }
+    
+    public ChartPanel getGrapherOpen (){
+        return openGrapher.get();
     }
 }
