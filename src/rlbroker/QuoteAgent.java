@@ -134,12 +134,9 @@ public class QuoteAgent {
         setLow(newLow);
         setOpen(newOpen);
 //        choose new step
-        
-            graph();
-        
+        graph();  
         updateState();
-        determineAction();
-        
+        determineAction();    
         label.setText(
                 "<html>Quoting: " + name
                 + "<br>Profit: " + getProfit()
@@ -151,7 +148,6 @@ public class QuoteAgent {
                 + "<br>Reward : " + getReward()
                 + "<br>Is Holding: " + isHolding
                 + "</html>");
-
         frame.add(label);
         frame.repaint();
         
@@ -205,7 +201,8 @@ public class QuoteAgent {
 
     public void writeStateSpace() {
         try {
-            fileWriter = new FileWriter("Statespace" + getName() + ".txt");
+            fileWriter = new FileWriter("Statespace"
+                     + getName() + ".txt");
             bufferedWriter = new BufferedWriter(fileWriter);
 
             for (int i = 0; i < stateSpace.length; i++) {
@@ -223,8 +220,9 @@ public class QuoteAgent {
     }
 
     public void determineReward(double open) {
-
+        
         setReward(((open - getOpen()) / getOpen()));
+        System.out.println(reward);
     }
 
     public void determineAction() {
