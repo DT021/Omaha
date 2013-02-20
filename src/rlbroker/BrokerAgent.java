@@ -124,8 +124,7 @@ public class BrokerAgent {
             writeStateSpace();
             updateState();
             updateIndexOfBestMove();
-            timesteps++;
-            
+            timesteps++;         
         }
     }
 

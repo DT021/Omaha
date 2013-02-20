@@ -139,7 +139,7 @@ public class QuoteAgent {
         
         updateState();
         determineAction();
-
+        
         label.setText(
                 "<html>Quoting: " + name
                 + "<br>Profit: " + getProfit()
