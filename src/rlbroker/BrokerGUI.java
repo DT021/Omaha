@@ -76,6 +76,7 @@ public class BrokerGUI extends javax.swing.JFrame {
         tabs = new javax.swing.JTabbedPane();
         jPanel3 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
+        low = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -385,7 +386,20 @@ public class BrokerGUI extends javax.swing.JFrame {
             .addGap(0, 220, Short.MAX_VALUE)
         );
 
-        tabs.addTab("Agent Equity", jPanel8);
+        tabs.addTab("High", jPanel8);
+
+        javax.swing.GroupLayout lowLayout = new javax.swing.GroupLayout(low);
+        low.setLayout(lowLayout);
+        lowLayout.setHorizontalGroup(
+            lowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 446, Short.MAX_VALUE)
+        );
+        lowLayout.setVerticalGroup(
+            lowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 220, Short.MAX_VALUE)
+        );
+
+        tabs.addTab("Low", low);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -467,6 +481,7 @@ public class BrokerGUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JList list;
+    private javax.swing.JPanel low;
     private javax.swing.JLabel name1;
     private javax.swing.JLabel name2;
     private javax.swing.JLabel name3;
@@ -515,9 +530,11 @@ public class BrokerGUI extends javax.swing.JFrame {
             JPanel openGraph = a.get(list.getSelectedIndex()).getGrapherOpen();
             tabs.setComponentAt(0, openGraph);
             
-            JPanel equityGraph = a.get(list.getSelectedIndex()).equityGrapher.get();
+            JPanel equityGraph = a.get(list.getSelectedIndex()).highGrapher.get();
             tabs.setComponentAt(1, equityGraph);
             
+            JPanel lows = a.get(list.getSelectedIndex()).lowGrapher.get();
+            tabs.setComponentAt(2, lows);
         }
     }
     

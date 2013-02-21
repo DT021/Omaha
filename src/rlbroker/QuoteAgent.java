@@ -70,8 +70,8 @@ public class QuoteAgent {
     private static double discountRate = 0.99;
     private int timesteps = 0;
     private boolean isHolding;
-    Grapher rewardGrapher;
-    Grapher equityGrapher;
+    Grapher highGrapher;
+    Grapher lowGrapher;
     Grapher openGrapher;
     private double buyinOpen;
     private double profit;
@@ -85,20 +85,22 @@ public class QuoteAgent {
     double[] stateSpace;
     boolean isGraphing = false;
     int startStep = 0;
+    int stepping = 0;
 
     public QuoteAgent(String Quote, boolean graph) {
         setName(Quote);
         isGraphing = graph;
         Calendar calendar = Calendar.getInstance();
-        stateSpace = new double[(48*48*48) * 3];
+        stateSpace = new double[(48 * 48 * 48) * 3];
 
-        highInput = new double[(calendar.get(Calendar.YEAR) - 1900) * 400];
-        lowInput = new double[(calendar.get(Calendar.YEAR) - 1900) * 400];
-        openInput = new double[(calendar.get(Calendar.YEAR) - 1900) * 400];
+        highInput = new double[(calendar.get(Calendar.YEAR) - 1900) * 365];
+        lowInput = new double[(calendar.get(Calendar.YEAR) - 1900) * 365];
+        openInput = new double[(calendar.get(Calendar.YEAR) - 1900) * 365];
 
-        rewardGrapher = new Grapher(getName(), "Reward", "Reward", "Time Steps");
-        openGrapher = new Grapher("Open Price: "+getName(), "Open Price", "Time Steps", "Open Ptice");
-        equityGrapher = new Grapher("Agent Equity", "Equity", "Time Steps", "Equity");
+        openGrapher = new Grapher("Open Price: " + getName(), "Open Price", "Time Steps", "Open Price");
+        lowGrapher = new Grapher(name + ": Low", "Daily Low", "Days Since IPO", "Low");
+        highGrapher = new Grapher(name + ": High", "Daily High", "Days Since IPO", "High");
+
         label = new JLabel();
 
         frame = new JFrame();
@@ -108,6 +110,10 @@ public class QuoteAgent {
                 Calendar.DAY_OF_MONTH),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.YEAR));
+        long current = System.currentTimeMillis();
+//        choose new step
+
+        graph();
     }
 
     public void trainAgent() {
@@ -120,13 +126,6 @@ public class QuoteAgent {
             }
         }
     }
-    
-    public void step(){
-        timesteps ++;
-        // this is for use by the broker to step the agent
-        act(highInput[timesteps+startStep], highInput[timesteps+startStep], openInput[timesteps+startStep]);
-        setTimesteps(getTimesteps()+1);
-    }
 
     public void act(double newHigh, double newLow, double newOpen) {
 //        update the previous step
@@ -137,10 +136,37 @@ public class QuoteAgent {
         setHigh(newHigh);
         setLow(newLow);
         setOpen(newOpen);
-//        choose new step
-        graph();  
+
         updateState();
-        determineAction();    
+        determineAction();
+        label.setText(
+                "<html>Quoting: " + name
+                + "<br>Action: " + getAction()
+                + "<br>High: " + (int) high
+                + "<br>Open: " + (int) open
+                + "<br>Is Holding: " + isHolding
+                + "</html>");
+
+    }
+
+    public void singleStep() {
+        //        update the previous step
+
+        setHigh(highInput[1]);
+        setLow(lowInput[1]);
+        setOpen(openInput[1]);
+//        choose step from yesterday
+        updateState();
+        determineAction();
+        updateTD(openInput[1]);
+        updateStateVariables();
+        updateHoldings();
+        writeStateSpace();
+        setHigh(highInput[0]);
+        setLow(lowInput[0]);
+        setOpen(openInput[0]);
+        updateState();
+        determineAction();
         label.setText(
                 "<html>Quoting: " + name
                 + "<br>Profit: " + getProfit()
@@ -152,9 +178,6 @@ public class QuoteAgent {
                 + "<br>Reward : " + getReward()
                 + "<br>Is Holding: " + isHolding
                 + "</html>");
-        frame.add(label);
-        frame.repaint();
-        
     }
 
     public void updateTD(double open) {
@@ -166,14 +189,6 @@ public class QuoteAgent {
                 * (stateSpace[getIndexOfBestMove()] - stateSpace[getIndexOfPreviousBestMove()]))));
 
         stateSpace[getIndexOfPreviousBestMove()] += learningRate * getTemporalDifference();
-//        System.out.println(
-//                "TD: " + getTemporalDifference()+
-//                "\nStateValue: " + stateSpace[getIndexOfPreviousBestMove()]+
-//                "\nlearning Rate: "+ learningRate+
-//                "\nstate: " + getState() +
-//                "\ndiscount Rate: "+ discountRate+
-//                "\nreward: " + getReward()+
-//                "\nI hate life:" + (getTemporalDifference()));   
     }
 
     public void updateStateVariables() {
@@ -198,15 +213,24 @@ public class QuoteAgent {
     }
 
     public void graph() {
-        rewardGrapher.update(getTimesteps(), getReward());
-        openGrapher.update(getTimesteps(), getOpen());
-        equityGrapher.update(getTimesteps(), getEquity());
+        int d = 0;
+        for (int i = openInput.length - 1; i > 0; i--) {
+            if (highInput[i] != 0) {
+                if (i>0 && highInput[i] != 0 && highInput[i-1] == 0) {
+                    d=0;
+                }
+                openGrapher.update(d, openInput[i]);
+                highGrapher.update(d, highInput[i]);
+                lowGrapher.update(d, lowInput[i]);
+                d++;
+            }
+        }
     }
 
     public void writeStateSpace() {
         try {
             fileWriter = new FileWriter("Statespace"
-                     + getName() + ".txt");
+                    + getName() + ".txt");
             bufferedWriter = new BufferedWriter(fileWriter);
 
             for (int i = 0; i < stateSpace.length; i++) {
@@ -224,31 +248,30 @@ public class QuoteAgent {
     }
 
     public void determineReward(double open) {
-        
+
         setReward(((open - getOpen()) / getOpen()));
-        System.out.println(reward);
     }
 
     public void determineAction() {
         if (isHolding) {
-            if (stateSpace[getState() + ((48*48*48) * Actions.SELL.index)] >= stateSpace[getState() + ((48*48*48) * Actions.HOLD.index)]) {
+            if (stateSpace[getState() + ((48 * 48 * 48) * Actions.SELL.index)] >= stateSpace[getState() + ((48 * 48 * 48) * Actions.HOLD.index)]) {
 //                then sell
                 setAction(Actions.SELL);
-                setIndexOfBestMove(getState() + ((48*48*48) * getAction().index));
+                setIndexOfBestMove(getState() + ((48 * 48 * 48) * getAction().index));
             } else {
 //                then hold
                 setAction(Actions.HOLD);
-                setIndexOfBestMove(getState() + ((48*48*48) * getAction().index));
+                setIndexOfBestMove(getState() + ((48 * 48 * 48) * getAction().index));
             }
         } else if (!isHolding) {
-            if (stateSpace[getState() + ((48*48*48)*Actions.BUY.index)] >= stateSpace[getState() + ((48*48*48)*Actions.HOLD.index)]) {
+            if (stateSpace[getState() + ((48 * 48 * 48) * Actions.BUY.index)] >= stateSpace[getState() + ((48 * 48 * 48) * Actions.HOLD.index)]) {
 //                then buy
                 setAction(Actions.BUY);
-                setIndexOfBestMove(getState() + ((48*48*48) * getAction().index));
+                setIndexOfBestMove(getState() + ((48 * 48 * 48) * getAction().index));
             } else {
 //                then hold
                 setAction(Actions.HOLD);
-                setIndexOfBestMove(getState() + ((48*48*48) * getAction().index));
+                setIndexOfBestMove(getState() + ((48 * 48 * 48) * getAction().index));
             }
         }
 
@@ -277,7 +300,7 @@ public class QuoteAgent {
         setState(
                 (discritize(indexHigh)
                 + ((48) * discritize(indexLow))
-                + ((48*48) * discritize(indexOpen))));
+                + ((48 * 48) * discritize(indexOpen))));
     }
 
     public int discritize(double value) {
@@ -415,7 +438,7 @@ public class QuoteAgent {
             }
             bufferedReader.close();
         } catch (Exception e) {
-            System.out.println("Error: In the reading of stateSpace for "+getName());
+            System.out.println("Error: In the reading of stateSpace for " + getName());
         }
     }
 
@@ -427,20 +450,18 @@ public class QuoteAgent {
         }
     }
 
-    public JLabel fetchRSSHeadlines(){
+    public JLabel fetchRSSHeadlines() {
         FetchRSS fetchRSS = new FetchRSS();
         try {
             return fetchRSS.rssFetch(getName());
         } catch (Exception ex) {
             Logger.getLogger(QuoteAgent.class.getName()).log(Level.SEVERE, null, ex);
         }
-            return new JLabel("Error in RSS fetch");
+        return new JLabel("Error in RSS fetch");
     }
 
-    
 //***************END OF ACTOR CODE***************
 //               Getters And Setters
-
     public double getHigh() {
         return high;
     }
@@ -632,12 +653,12 @@ public class QuoteAgent {
     public static void setDiscountRate(double aDiscountRate) {
         discountRate = aDiscountRate;
     }
-    
-    public int getActionNumber(){
+
+    public int getActionNumber() {
         return getAction().index;
     }
-    
-    public ChartPanel getGrapherOpen (){
+
+    public ChartPanel getGrapherOpen() {
         return openGrapher.get();
     }
 }

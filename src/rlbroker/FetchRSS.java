@@ -38,7 +38,6 @@ public class FetchRSS {
         }
         String formatted = begin;
         for (int i = 0; i < feedTitles.length; i++) {
-            System.out.println(feedTitles[i]);
             if (i==0) {
                 formatted += feedTitles[i];
             }else if (!(feedTitles[i]==(null))){

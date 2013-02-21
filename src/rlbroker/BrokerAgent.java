@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import javax.sound.midi.SysexMessage;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -45,7 +46,6 @@ public class BrokerAgent {
     JLabel label;
     double[] stateSpace;
     boolean isGraphing = false;
-    
     ArrayList<QuoteAgent> quotes = new ArrayList<QuoteAgent>();
     ArrayList<QuoteAgent> top5 = new ArrayList<QuoteAgent>();
     BrokerGUI gui;
@@ -53,7 +53,7 @@ public class BrokerAgent {
     int startStep;
 
     public BrokerAgent() {
-        
+
         quotes.add(new QuoteAgent("ATVI", isGraphing));
         quotes.add(new QuoteAgent("AKAM", isGraphing));
         quotes.add(new QuoteAgent("ALXN", isGraphing));
@@ -64,11 +64,9 @@ public class BrokerAgent {
         quotes.add(new QuoteAgent("AAPL", isGraphing));
         quotes.add(new QuoteAgent("AMAT", isGraphing));
         quotes.add(new QuoteAgent("ADSK", isGraphing));
-
         stateSpace = new double[(int) Math.pow(3, 10) * 10];// b,s,h from both actors, then a 
         gui = new BrokerGUI(quotes);
         gui.setIndexPanel();
-        gui.setVisible(true);
     }
 
     public void readSpace() {
@@ -108,29 +106,33 @@ public class BrokerAgent {
     }
 
     public void act() {
-        System.out.println("");
         for (int i = 0; i < quotes.size(); i++) {
-            quotes.get(i).step();
+            quotes.get(i).singleStep();
+            System.out.println(quotes.get(i).getName());
         }
-        updateIndexOfBestMove();
-        timesteps++;
-        while (timesteps < quotes.get(0).getHighInput().length) {
-
-            for (int i = 0; i < quotes.size(); i++) {
-                quotes.get(i).step();
-            }
+        updateTop5();
+        gui.setVisible(true);
+        while (true) {
             gui.updateValues(top5, equity);
             gui.refreshQuoteData(quotes);
-            updateTD();
-            updateStateVariables();
-            writeStateSpace();
-            updateState();
-            updateIndexOfBestMove();
-            timesteps++;         
         }
-        while (true) { 
-            gui.setVisible(true);
-            gui.refreshQuoteData(quotes);
+    }
+
+    public void updateTop5() {
+        double[] vals = new double[quotes.size()];
+        double[] valsRefrence = new double[quotes.size()];
+
+        for (int i = 0; i < quotes.size(); i++) {
+            vals[i] = quotes.get(i).stateSpace[quotes.get(i).getIndexOfBestMove()];
+            valsRefrence[i] = quotes.get(i).stateSpace[quotes.get(i).getIndexOfBestMove()];
+        }
+        Arrays.sort(vals);
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < valsRefrence.length; j++) {
+                if (valsRefrence[j] == vals[i]) {
+                    top5.add(quotes.get(j));
+                }
+            }
         }
     }
 
@@ -143,13 +145,13 @@ public class BrokerAgent {
         state = index;
     }
 
- public void updateIndexOfBestMove() {
+    public void updateIndexOfBestMove() {
         double[] vals = new double[quotes.size()];
         double[] valsRefrence = new double[quotes.size()];
-        
+
         for (int i = 0; i < quotes.size(); i++) {
-            vals[i] = stateSpace[getState()+(int)(Math.pow(3, 10)*i)];
-            valsRefrence[i] = stateSpace[getState()+(int)(Math.pow(3, 10)*i)];
+            vals[i] = stateSpace[getState() + (int) (Math.pow(3, 10) * i)];
+            valsRefrence[i] = stateSpace[getState() + (int) (Math.pow(3, 10) * i)];
         }
         Arrays.sort(vals);
         for (int i = 0; i < 5; i++) {
@@ -157,7 +159,7 @@ public class BrokerAgent {
                 if (valsRefrence[j] == vals[i]) {
                     top5.add(quotes.get(j));
                     if (i == 0) {
-                        indexOfBestMove = getState()+(int)(Math.pow(3, 10)*i);
+                        indexOfBestMove = getState() + (int) (Math.pow(3, 10) * i);
                     }
                 }
             }
@@ -204,7 +206,7 @@ public class BrokerAgent {
             System.out.println("Error: In creation of the statespace");
         }
     }
-    
+
     //********END OF AGENT METHODS************
     public int getIndexOfBestMove() {
         return indexOfBestMove;
