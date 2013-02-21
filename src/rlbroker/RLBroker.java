@@ -27,12 +27,13 @@ public class RLBroker {
         
          BrokerAgent brokerAgent = new BrokerAgent();
          brokerAgent.act();
+        
 //         brokerAgent.trainAll();
 //         JFrame j = new JFrame("trainer");
 //         JLabel l = new JLabel("Finished Training;");
 //         j.add(l);
 //         j.setVisible(true);
-//        BrokerGUI brokerGUI = new BrokerGUI();
+//        BrokerGUI brokerGUI = new BrokerGUI(null);
 //        brokerGUI.setVisible(true);
       
     }     

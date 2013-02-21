@@ -177,7 +177,7 @@ public class QuoteAgent {
                 
                 + "<br>Action: " + getAction()
                 
-                + "<br>Previous State value: " + stateSpace[getIndexOfPreviousBestMove()]
+                
                 
                 +"<br>Market Feeling: " + fetchRSS.action
                 

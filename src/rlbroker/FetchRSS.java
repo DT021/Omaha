@@ -114,7 +114,13 @@ public class FetchRSS {
                         || feedTitles[i].contains("increasing")
                         || feedTitles[i].contains("greater")
                         || feedTitles[i].contains("gain")
-                        || feedTitles[i].contains("profit")) {
+                        || feedTitles[i].contains("profit")
+                        || feedTitles[i].contains("up")
+                        || feedTitles[i].contains("profit")
+                        || feedTitles[i].contains("positive")
+                        || feedTitles[i].contains("rise")
+                        || feedTitles[i].contains("strong")
+                        || feedTitles[i].contains("advance")) {
                     positveWords++;
                 }
             }
@@ -126,7 +132,18 @@ public class FetchRSS {
                         || feedTitles[i].contains("lower")
                         || feedTitles[i].contains("drop")
                         || feedTitles[i].contains("decresing")
-                        || feedTitles[i].contains("down")) {
+                        || feedTitles[i].contains("down")
+                        || feedTitles[i].contains("shortcoming")
+                        || feedTitles[i].contains("negative")
+                        || feedTitles[i].contains("dip")
+                        || feedTitles[i].contains("plunge")
+                        || feedTitles[i].contains("ease")
+                        || feedTitles[i].contains("easing")
+                        || feedTitles[i].contains("plunging")
+                        || feedTitles[i].contains("plummet")
+                        || feedTitles[i].contains("tumble")
+                        || feedTitles[i].contains("suffer")
+                        || feedTitles[i].contains("weak")) {
                     negativeWords++;
                 }
             }
