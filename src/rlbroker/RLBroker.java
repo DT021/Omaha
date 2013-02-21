@@ -6,6 +6,8 @@ package rlbroker;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 public class RLBroker {
     /* Alex's notes;
@@ -25,7 +27,11 @@ public class RLBroker {
         
          BrokerAgent brokerAgent = new BrokerAgent();
          brokerAgent.act();
-        
+//         brokerAgent.trainAll();
+//         JFrame j = new JFrame("trainer");
+//         JLabel l = new JLabel("Finished Training;");
+//         j.add(l);
+//         j.setVisible(true);
 //        BrokerGUI brokerGUI = new BrokerGUI();
 //        brokerGUI.setVisible(true);
       

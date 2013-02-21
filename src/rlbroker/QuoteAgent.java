@@ -79,6 +79,7 @@ public class QuoteAgent {
     BufferedReader bufferedReader;
     FileWriter fileWriter;
     BufferedWriter bufferedWriter;
+    FetchRSS fetchRSS;
     JFrame frame;
     JPanel panel;
     JLabel label;
@@ -106,6 +107,7 @@ public class QuoteAgent {
         frame = new JFrame();
         frame.add(label);
         readSpace();
+        fetchRSS = new FetchRSS(getName());
         fetchHistoricData(1, 1, 1900, calendar.get( // starts initially at the 1/1/1900
                 Calendar.DAY_OF_MONTH),
                 calendar.get(Calendar.MONTH),
@@ -167,16 +169,18 @@ public class QuoteAgent {
         setOpen(openInput[0]);
         updateState();
         determineAction();
+        fetchRSS.updateState();
+        fetchRSS.findIndexOfBestMove();
         label.setText(
                 "<html>Quoting: " + name
-                + "<br>Profit: " + getProfit()
-                + "<br>Time step: " + getTimesteps()
+                
+                
                 + "<br>Action: " + getAction()
-                + "<br>Previous index: " + getIndexOfBestMove()
+                
                 + "<br>Previous State value: " + stateSpace[getIndexOfPreviousBestMove()]
-                + "<br>Buy in price: " + getBuyinOpen()
-                + "<br>Reward : " + getReward()
-                + "<br>Is Holding: " + isHolding
+                
+                +"<br>Market Feeling: " + fetchRSS.action
+                
                 + "</html>");
     }
 
@@ -220,11 +224,10 @@ public class QuoteAgent {
                     d=0;
                 }
                 openGrapher.update(d, openInput[i]);
-                highGrapher.update(d, highInput[i]);
-                lowGrapher.update(d, lowInput[i]);
                 d++;
             }
         }
+        
     }
 
     public void writeStateSpace() {
@@ -451,7 +454,7 @@ public class QuoteAgent {
     }
 
     public JLabel fetchRSSHeadlines() {
-        FetchRSS fetchRSS = new FetchRSS();
+        FetchRSS fetchRSS = new FetchRSS(getName());
         try {
             return fetchRSS.rssFetch(getName());
         } catch (Exception ex) {
