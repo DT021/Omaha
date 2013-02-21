@@ -224,10 +224,11 @@ public class QuoteAgent {
                     d=0;
                 }
                 openGrapher.update(d, openInput[i]);
+                highGrapher.update(d, highInput[i]);
+                lowGrapher.update(d, lowInput[i]);
                 d++;
             }
         }
-        
     }
 
     public void writeStateSpace() {

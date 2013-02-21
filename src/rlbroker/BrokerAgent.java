@@ -52,6 +52,7 @@ public class BrokerAgent {
     int action;
     int startStep;
     LoadingGUI loadingGUI = new LoadingGUI();
+
     public BrokerAgent() {
         loadingGUI.setVisible(true);
         quotes.add(new QuoteAgent("ATVI", isGraphing));
@@ -118,17 +119,17 @@ public class BrokerAgent {
             gui.refreshQuoteData(quotes);
         }
     }
-    
-    public void trainAll(){
+
+    public void trainAll() {
         for (int i = 0; i < quotes.size(); i++) {
-            for (int j = 0; j < 10; j++) {
-                System.out.print("Training: " + quotes.get(i).getName());
-                quotes.get(i).trainAgent();
-                System.out.println("Equity "+quotes.get(i).getName()+": "+ quotes.get(i).getEquity());
-            }
+
+            System.out.print("Training: " + quotes.get(i).getName());
+            quotes.get(i).trainAgent();
+            System.out.println("Equity " + quotes.get(i).getName() + ": " + quotes.get(i).getEquity());
+
         }
     }
-    
+
     public void updateTop5() {
         double[] vals = new double[quotes.size()];
         double[] valsRefrence = new double[quotes.size()];

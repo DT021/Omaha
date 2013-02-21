@@ -26,7 +26,8 @@ public class RLBroker {
 //       loadingGUI.setVisible(true);
         
          BrokerAgent brokerAgent = new BrokerAgent();
-         brokerAgent.act();
+//         brokerAgent.act();
+         brokerAgent.trainAll();
 //         brokerAgent.trainAll();
 //         JFrame j = new JFrame("trainer");
 //         JLabel l = new JLabel("Finished Training;");
