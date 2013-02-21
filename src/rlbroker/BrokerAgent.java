@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -66,6 +67,7 @@ public class BrokerAgent {
         stateSpace = new double[(int) Math.pow(3, 10) * 10];// b,s,h from both actors, then a 
         gui = new BrokerGUI(quotes);
         gui.setIndexPanel();
+        gui.setVisible(true);
     }
 
     public void readSpace() {
@@ -111,7 +113,6 @@ public class BrokerAgent {
         }
         updateIndexOfBestMove();
         timesteps++;
-        gui.setVisible(true);
         while (timesteps < quotes.get(0).getHighInput().length) {
 
             for (int i = 0; i < quotes.size(); i++) {
@@ -125,6 +126,10 @@ public class BrokerAgent {
             updateState();
             updateIndexOfBestMove();
             timesteps++;         
+        }
+        while (true) { 
+            gui.setVisible(true);
+            gui.refreshQuoteData(quotes);
         }
     }
 
@@ -227,73 +232,44 @@ public class BrokerAgent {
             System.out.println("Error: In creation of the statespace");
         }
     }
-
-    /**
-     * @return the indexOfBestMove
-     */
+    
+    //********END OF AGENT METHODS************
     public int getIndexOfBestMove() {
         return indexOfBestMove;
     }
 
-    /**
-     * @return the indexOfPreviousBestMove
-     */
     public int getIndexOfPreviousBestMove() {
         return indexOfPreviousBestMove;
     }
 
-    /**
-     * @return the state
-     */
     public int getState() {
         return state;
     }
 
-    /**
-     * @return the reward
-     */
     public double getReward() {
         return reward;
     }
 
-    /**
-     * @return the temporalDifference
-     */
     public double getTemporalDifference() {
         return temporalDifference;
     }
 
-    /**
-     * @return the timesteps
-     */
     public int getTimesteps() {
         return timesteps;
     }
 
-    /**
-     * @param timesteps the timesteps to set
-     */
     public void setTimesteps(int timesteps) {
         this.timesteps = timesteps;
     }
 
-    /**
-     * @return the profit
-     */
     public double getProfit() {
         return profit;
     }
 
-    /**
-     * @return the equity
-     */
     public double getEquity() {
         return equity;
     }
 
-    /**
-     * @param temporalDifference the temporalDifference to set
-     */
     public void setTemporalDifference(double temporalDifference) {
         this.temporalDifference = temporalDifference;
     }

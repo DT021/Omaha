@@ -4,6 +4,9 @@
  */
 package rlbroker;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class RLBroker {
     /* Alex's notes;
      *  possible expansion:
@@ -17,11 +20,14 @@ public class RLBroker {
      */
 
     public static void main(String[] args) {
-       
+//       LoadingGUI loadingGUI = new LoadingGUI();
+//       loadingGUI.setVisible(true);
+        
          BrokerAgent brokerAgent = new BrokerAgent();
          brokerAgent.act();
         
 //        BrokerGUI brokerGUI = new BrokerGUI();
 //        brokerGUI.setVisible(true);
+      
     }     
 }

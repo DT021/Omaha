@@ -3,6 +3,9 @@
  */
 package rlbroker;
 
+import com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser;
+import com.sun.syndication.feed.synd.SyndFeed;
+import gnu.xml.aelfred2.XmlReader;
 import java.awt.Dimension;
 import java.awt.Panel;
 import java.io.BufferedReader;
@@ -20,6 +23,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
+import org.xml.sax.XMLReader;
 
 public class QuoteAgent {
 
@@ -422,6 +426,18 @@ public class QuoteAgent {
             return "" + day;
         }
     }
+
+    public JLabel fetchRSSHeadlines(){
+        FetchRSS fetchRSS = new FetchRSS();
+        try {
+            return fetchRSS.rssFetch(getName());
+        } catch (Exception ex) {
+            Logger.getLogger(QuoteAgent.class.getName()).log(Level.SEVERE, null, ex);
+        }
+            return new JLabel("Error in RSS fetch");
+    }
+
+    
 //***************END OF ACTOR CODE***************
 //               Getters And Setters
 
