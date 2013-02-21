@@ -121,12 +121,14 @@ public class BrokerAgent {
     }
 
     public void trainAll() {
-        for (int i = 0; i < quotes.size(); i++) {
+        for (int j = 0; j < 100; j++) {
+            for (int i = 0; i < quotes.size(); i++) {
 
-            System.out.print("Training: " + quotes.get(i).getName());
-            quotes.get(i).trainAgent();
-            System.out.println("Equity " + quotes.get(i).getName() + ": " + quotes.get(i).getEquity());
+                System.out.print("Training: " + quotes.get(i).getName());
+                quotes.get(i).trainAgent();
+                System.out.println("Equity " + quotes.get(i).getName() + ": " + quotes.get(i).getEquity());
 
+            }
         }
     }
 
