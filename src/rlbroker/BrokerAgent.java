@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import javax.swing.JFrame;
@@ -142,54 +143,25 @@ public class BrokerAgent {
         state = index;
     }
 
-    public void updateIndexOfBestMove() {
-        int i1 = -1;
-        int i2 = -1;
-        int i3 = -1;
-        int i4 = -1;
-        int i5 = -1;
-        for (int i = 0; i < top5.size(); i++) {
-            top5.remove(i);
+ public void updateIndexOfBestMove() {
+        double[] vals = new double[quotes.size()];
+        double[] valsRefrence = new double[quotes.size()];
+        
+        for (int i = 0; i < quotes.size(); i++) {
+            vals[i] = stateSpace[getState()+(int)(Math.pow(3, 10)*i)];
+            valsRefrence[i] = stateSpace[getState()+(int)(Math.pow(3, 10)*i)];
         }
-        for (int j = 0; j < 10; j++) {
-            boolean notFound = true;
-            if ((i1 == -1 || stateSpace[state + (int) (Math.pow(3, 10) * j)] > stateSpace[i1]) && notFound) {
-                indexOfBestMove = state + (int) (Math.pow(3, 10) * j);
-                i5 = i4;
-                i4 = i3;
-                i3 = i2;
-                i2 = i1;
-                i1 = j;
-                notFound = false;
-            }
-            if ((i2 == -1 || stateSpace[state + (int) (Math.pow(3, 10) * j)] > stateSpace[i2]) && notFound) {
-                i5 = i4;
-                i4 = i3;
-                i3 = i2;
-                i2 = j;
-                notFound = false;
-            }
-            if ((i3 == -1 || stateSpace[state + (int) (Math.pow(3, 10) * j)] > stateSpace[i3]) && notFound) {
-                i5 = i4;
-                i4 = i3;
-                i3 = j;
-                notFound = false;
-            }
-            if ((i4 == -1 || stateSpace[state + (int) (Math.pow(3, 10) * j)] > stateSpace[i4]) && notFound) {
-                i5 = i4;
-                i4 = j;
-                notFound = false;
-            }
-            if ((i5 == -1 || stateSpace[state + (int) (Math.pow(3, 10) * j)] > stateSpace[i5]) && notFound) {
-                i5 = j;
-                notFound = false;
+        Arrays.sort(vals);
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < valsRefrence.length; j++) {
+                if (valsRefrence[j] == vals[i]) {
+                    top5.add(quotes.get(j));
+                    if (i == 0) {
+                        indexOfBestMove = getState()+(int)(Math.pow(3, 10)*i);
+                    }
+                }
             }
         }
-        top5.add(quotes.get(i1));
-        top5.add(quotes.get(i2));
-        top5.add(quotes.get(i3));
-        top5.add(quotes.get(i4));
-        top5.add(quotes.get(i5));
     }
 
     public void updateTD() {
