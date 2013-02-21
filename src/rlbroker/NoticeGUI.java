@@ -4,6 +4,13 @@
  */
 package rlbroker;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author Alexandr
@@ -32,6 +39,8 @@ public class NoticeGUI extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jPanel4 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextArea2 = new javax.swing.JTextArea();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
 
@@ -54,7 +63,7 @@ public class NoticeGUI extends javax.swing.JFrame {
         jTextArea1.setColumns(20);
         jTextArea1.setFont(new java.awt.Font("Arial", 0, 13)); // NOI18N
         jTextArea1.setRows(5);
-        jTextArea1.setText("This is an expirement where a Reinforcement Learning artificial \nintelligence predicts the daily changes in a set of stocks on the \nNASDAQ, from which it then selects five as a suggestion\nfor personal investing. It considers the history of each stock, but \ntechnical model is applied to the decision making process.");
+        jTextArea1.setText("This is an expirement where a Reinforcement Learning artificial \nintelligence predicts the daily changes in a set of stocks on the \nNASDAQ, from which it then selects five as a suggestion\nfor personal investing. It considers the history of each stock, but \nno technical model is applied to the decision making process.");
         jScrollPane1.setViewportView(jTextArea1);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
@@ -72,20 +81,37 @@ public class NoticeGUI extends javax.swing.JFrame {
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("How does it work?"));
 
+        jTextArea2.setEditable(false);
+        jTextArea2.setColumns(20);
+        jTextArea2.setFont(new java.awt.Font("Arial", 0, 13)); // NOI18N
+        jTextArea2.setRows(5);
+        jTextArea2.setText("Each stock has an agent which is monitoring it and deciding\nwhat the most logical move is on any given day. To gain a greater\nunderstanding of its environment the agent percieves its setting\n--the high, low, and opening values of a stock--it then predicts \nwhich action--buy, sell, or hold--will be the most profitable, \nrecieves a reward based on how successful its action was, and\nuses it to update its understanding. It's like training a dog.");
+        jScrollPane2.setViewportView(jTextArea2);
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addComponent(jScrollPane2)
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 134, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
         );
 
         jButton2.setText("Okay");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("More Information");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -126,6 +152,22 @@ public class NoticeGUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        setVisible(false);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        try {
+            try {
+                Desktop.getDesktop().browse(new URI("http://webdocs.cs.ualberta.ca/~sutton/book/ebook/the-book.html"));
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(NoticeGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(NoticeGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -169,6 +211,8 @@ public class NoticeGUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jTextArea2;
     // End of variables declaration//GEN-END:variables
 }

@@ -122,7 +122,7 @@
                       <Font name="Arial" size="13" style="0"/>
                     </Property>
                     <Property name="rows" type="int" value="5"/>
-                    <Property name="text" type="java.lang.String" value="This is an expirement where a Reinforcement Learning artificial &#xa;intelligence predicts the daily changes in a set of stocks on the &#xa;NASDAQ, from which it then selects five as a suggestion&#xa;for personal investing. It considers the history of each stock, but &#xa;technical model is applied to the decision making process."/>
+                    <Property name="text" type="java.lang.String" value="This is an expirement where a Reinforcement Learning artificial &#xa;intelligence predicts the daily changes in a set of stocks on the &#xa;NASDAQ, from which it then selects five as a suggestion&#xa;for personal investing. It considers the history of each stock, but &#xa;no technical model is applied to the decision making process."/>
                   </Properties>
                 </Component>
               </SubComponents>
@@ -141,25 +141,53 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  <Component id="jScrollPane2" alignment="0" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="134" max="32767" attributes="0"/>
+                  <Component id="jScrollPane2" alignment="0" pref="119" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>
+          <SubComponents>
+            <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JTextArea" name="jTextArea2">
+                  <Properties>
+                    <Property name="editable" type="boolean" value="false"/>
+                    <Property name="columns" type="int" value="20"/>
+                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                      <Font name="Arial" size="13" style="0"/>
+                    </Property>
+                    <Property name="rows" type="int" value="5"/>
+                    <Property name="text" type="java.lang.String" value="Each stock has an agent which is monitoring it and deciding&#xa;what the most logical move is on any given day. To gain a greater&#xa;understanding of its environment the agent percieves its setting&#xa;--the high, low, and opening values of a stock--it then predicts &#xa;which action--buy, sell, or hold--will be the most profitable, &#xa;recieves a reward based on how successful its action was, and&#xa;uses it to update its understanding. It&apos;s like training a dog."/>
+                  </Properties>
+                </Component>
+              </SubComponents>
+            </Container>
+          </SubComponents>
         </Container>
         <Component class="javax.swing.JButton" name="jButton2">
           <Properties>
             <Property name="text" type="java.lang.String" value="Okay"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton2ActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="jButton3">
           <Properties>
             <Property name="text" type="java.lang.String" value="More Information"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton3ActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

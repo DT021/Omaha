@@ -69,7 +69,7 @@ public class BrokerAgent {
         gui = new BrokerGUI(quotes);
         gui.setIndexPanel();
     }
-
+                                                                
     public void readSpace() {
         /* Created By: Alex Kearney 
          * Reads statespace from previous execution
