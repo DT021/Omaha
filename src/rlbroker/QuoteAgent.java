@@ -99,8 +99,8 @@ public class QuoteAgent {
         openInput = new double[(calendar.get(Calendar.YEAR) - 1900) * 365];
 
         openGrapher = new Grapher("Open Price: " + getName(), "Open Price", "Time Steps", "Open Price");
-        lowGrapher = new Grapher(name + ": Low", "Daily Low", "Days Since IPO", "Low");
-        highGrapher = new Grapher(name + ": High", "Daily High", "Days Since IPO", "High");
+        lowGrapher = new Grapher(name + ": Low", "Daily Low", "Past Five Days", "Low");
+        highGrapher = new Grapher(name + ": High", "Daily High", "Past Five Days", "High");
 
         label = new JLabel();
 
@@ -153,7 +153,26 @@ public class QuoteAgent {
 
     public void singleStep() {
         //        update the previous step
-
+        setHigh(highInput[3]);
+        setLow(lowInput[3]);
+        setOpen(openInput[3]);
+//        choose step from yesterday
+        updateState();
+        determineAction();
+        updateTD(openInput[3]);
+        updateStateVariables();
+        updateHoldings();
+        writeStateSpace();
+        setHigh(highInput[2]);
+        setLow(lowInput[2]);
+        setOpen(openInput[2]);
+//        choose step from yesterday
+        updateState();
+        determineAction();
+        updateTD(openInput[2]);
+        updateStateVariables();
+        updateHoldings();
+        writeStateSpace();
         setHigh(highInput[1]);
         setLow(lowInput[1]);
         setOpen(openInput[1]);
@@ -218,15 +237,20 @@ public class QuoteAgent {
 
     public void graph() {
         int d = 0;
+        int g = 0;
         for (int i = openInput.length - 1; i > 0; i--) {
             if (highInput[i] != 0) {
                 if (i>0 && highInput[i] != 0 && highInput[i-1] == 0) {
                     d=0;
+                    g =0;
                 }
-                openGrapher.update(d, openInput[i]);
-                highGrapher.update(d, highInput[i]);
-                lowGrapher.update(d, lowInput[i]);
-                d++;
+                    openGrapher.update(d, openInput[i]);
+                    d++;
+                if (i <= 5) {       
+                    highGrapher.update(g, highInput[i]);
+                    lowGrapher.update(g, lowInput[i]);
+                    g++;
+                }
             }
         }
     }
@@ -253,7 +277,16 @@ public class QuoteAgent {
 
     public void determineReward(double open) {
 
-        setReward(((open - getOpen()) / getOpen()));
+        
+        if ( action == Actions.SELL) {
+            setReward(((buyinOpen - open ) / getOpen())-0.01);
+        }else if(action == Actions.BUY ){
+            setReward((open-getOpen()/getOpen())-0.01);
+        }else if(action == Actions.HOLD && isHolding){
+            setReward(((buyinOpen - open ) / getOpen()));
+        }else if(action == Actions.HOLD && !isHolding){
+            setReward((open-getOpen()/getOpen()));
+        }
     }
 
     public void determineAction() {

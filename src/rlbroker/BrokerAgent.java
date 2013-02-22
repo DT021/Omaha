@@ -109,7 +109,7 @@ public class BrokerAgent {
     public void act() {
         for (int i = 0; i < quotes.size(); i++) {
             quotes.get(i).singleStep();
-            System.out.println(quotes.get(i).getName());
+            
         }
         updateTop5();
         gui.setVisible(true);
@@ -121,7 +121,7 @@ public class BrokerAgent {
     }
 
     public void trainAll() {
-        for (int j = 0; j < 100; j++) {
+        for (int j = 0; j < 10000000; j++) {
             for (int i = 0; i < quotes.size(); i++) {
 
                 System.out.print("Training: " + quotes.get(i).getName());
