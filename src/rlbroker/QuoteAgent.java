@@ -98,7 +98,7 @@ public class QuoteAgent {
         lowInput = new double[(calendar.get(Calendar.YEAR) - 1900) * 365];
         openInput = new double[(calendar.get(Calendar.YEAR) - 1900) * 365];
 
-        openGrapher = new Grapher("Open Price: " + getName(), "Open Price", "Time Steps", "Open Price");
+        openGrapher = new Grapher("Open Price: " + getName(), "Open Price", "Days Since IPO", "Open Price");
         lowGrapher = new Grapher(name + ": Low", "Daily Low", "Past Five Days", "Low");
         highGrapher = new Grapher(name + ": High", "Daily High", "Past Five Days", "High");
 
@@ -279,11 +279,11 @@ public class QuoteAgent {
 
         
         if ( action == Actions.SELL) {
-            setReward(((buyinOpen - open ) / getOpen())-0.01);
+            setReward(((buyinOpen - getOpen() ) / open)-0.01);
         }else if(action == Actions.BUY ){
             setReward((open-getOpen()/getOpen())-0.01);
         }else if(action == Actions.HOLD && isHolding){
-            setReward(((buyinOpen - open ) / getOpen()));
+            setReward(((buyinOpen - getOpen() ) / open));
         }else if(action == Actions.HOLD && !isHolding){
             setReward((open-getOpen()/getOpen()));
         }

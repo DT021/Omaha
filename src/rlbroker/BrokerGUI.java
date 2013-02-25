@@ -468,7 +468,6 @@ public class BrokerGUI extends javax.swing.JFrame {
         NoticeGUI noticeGUI = new NoticeGUI();
         noticeGUI.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -519,77 +518,85 @@ public class BrokerGUI extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     public void updateValues(ArrayList<QuoteAgent> picks, double agentEquityDaily) {
-        
+        /* this paints the pane of Agent related top ten data
+         * 
+         */
         jLabel9.setText(picks.get(0).label.getText());
-            jLabel9.revalidate();
-            jLabel9.repaint();
-            
+        jLabel9.revalidate();
+        jLabel9.repaint();
+
         name1.setText(picks.get(0).getName());
         price1.setText("" + (int) picks.get(0).getOpen());
-        jLabel2.setText(""+picks.get(0).getAction());
-        
+        jLabel2.setText("" + picks.get(0).getAction());
+
         name2.setText(picks.get(1).getName());
         price2.setText("" + (int) picks.get(1).getOpen());
-        jLabel10.setText(""+picks.get(1).getAction());
-        
+        jLabel10.setText("" + picks.get(1).getAction());
+
         name3.setText(picks.get(2).getName());
         price3.setText("" + (int) picks.get(2).getOpen());
-        jLabel11.setText(""+picks.get(2).getAction());
-        
+        jLabel11.setText("" + picks.get(2).getAction());
+
         name4.setText(picks.get(3).getName());
         price4.setText("" + (int) picks.get(3).getOpen());
-        jLabel12.setText(""+""+picks.get(3).getAction());
-        
+        jLabel12.setText("" + "" + picks.get(3).getAction());
+
         name5.setText(picks.get(4).getName());
         price5.setText("" + (int) picks.get(4).getOpen());
-        jLabel13.setText(""+picks.get(4).getAction());
-        
+        jLabel13.setText("" + picks.get(4).getAction());
+
         if (picks.get(0).isIsHolding()) {
             jLabel15.setText("Yes");
-        }else{
+        } else {
             jLabel15.setText("No");
         }
         if (picks.get(1).isIsHolding()) {
             jLabel16.setText("Yes");
-        }else{
+        } else {
             jLabel16.setText("No");
         }
         if (picks.get(2).isIsHolding()) {
             jLabel17.setText("Yes");
-        }else{
+        } else {
             jLabel17.setText("No");
         }
         if (picks.get(3).isIsHolding()) {
             jLabel18.setText("Yes");
-        }else{
+        } else {
             jLabel18.setText("No");
         }
         if (picks.get(4).isIsHolding()) {
             jLabel19.setText("Yes");
-        }else{
+        } else {
             jLabel19.setText("No");
         }
-        
+
         newsStoriesLabel.setText(picks.get(0).fetchRSSHeadlines().getText());
     }
 
     public void refreshQuoteData(ArrayList<QuoteAgent> a) {
+        /*  This deals with the refresh of the select panel after everything's 
+         * been painted and defined.
+         */
         if (list.getSelectedIndex() != -1) {
             jLabel9.removeAll();
-            
+
             JPanel openGraph = a.get(list.getSelectedIndex()).getGrapherOpen();
             tabs.setComponentAt(0, openGraph);
-            
+
             JPanel equityGraph = a.get(list.getSelectedIndex()).highGrapher.get();
             tabs.setComponentAt(1, equityGraph);
-            
+
             JPanel lows = a.get(list.getSelectedIndex()).lowGrapher.get();
             tabs.setComponentAt(2, lows);
             repaint();
         }
     }
-    
+
     public void setIndexPanel() {
-        list.setSelectedIndex(1);
+        /* Sets the panel so it's not null
+         * - changed to 0 post hackathon
+         */
+        list.setSelectedIndex(0);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * To change this template, choose Tools | Templates
+ * To change this template, choose Tools | Templates 
  * and open the template in the editor.
  */
 package rlbroker;
@@ -18,9 +18,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-/**
- *
- * @author Alexandr
+/* This Project was for the 2013 innovative learning week smart data hack. 
+ * 
  */
 public class BrokerAgent {
 
@@ -69,7 +68,7 @@ public class BrokerAgent {
         gui = new BrokerGUI(quotes);
         gui.setIndexPanel();
     }
-                                                                
+
     public void readSpace() {
         /* Created By: Alex Kearney 
          * Reads statespace from previous execution
@@ -90,6 +89,9 @@ public class BrokerAgent {
     }
 
     public void setStartingPoint() {
+        /* This is an outdated method from the begining of the project 
+         *
+         */
         int shortestIndex = 0;
         int shortestTime = 0;
 
@@ -107,9 +109,12 @@ public class BrokerAgent {
     }
 
     public void act() {
+        /* This forces the broker to act
+         * causes all the agents to act, then updates picks based on the value
+         * (certainty) of each agent's state, then updates the gui.
+         */
         for (int i = 0; i < quotes.size(); i++) {
             quotes.get(i).singleStep();
-            
         }
         updateTop5();
         gui.setVisible(true);
@@ -121,14 +126,14 @@ public class BrokerAgent {
     }
 
     public void trainAll() {
-        for (int j = 0; j < 10000000; j++) {
-            for (int i = 0; i < quotes.size(); i++) {
+        /* This method steps over all of the agents, training them over their 
+         * history
+         */
 
-                System.out.print("Training: " + quotes.get(i).getName());
-                quotes.get(i).trainAgent();
-                System.out.println("Equity " + quotes.get(i).getName() + ": " + quotes.get(i).getEquity());
-
-            }
+        for (int i = 0; i < quotes.size(); i++) {
+            System.out.print("Training: " + quotes.get(i).getName());
+            quotes.get(i).trainAgent();
+            System.out.println("Equity " + quotes.get(i).getName() + ": " + quotes.get(i).getEquity());
         }
     }
 
@@ -151,8 +156,10 @@ public class BrokerAgent {
     }
 
     public void updateState() {
+        /* This is an out dated method from when the broker was an agent
+         * 
+         */
         int index = 0;
-
         for (int i = 0; i < quotes.size(); i++) {
             index += Math.pow(3, i) * quotes.get(i).getActionNumber();
         }
@@ -160,6 +167,9 @@ public class BrokerAgent {
     }
 
     public void updateIndexOfBestMove() {
+        /* This is an out dated method from when the broker was an agent
+         * 
+         */
         double[] vals = new double[quotes.size()];
         double[] valsRefrence = new double[quotes.size()];
 
@@ -181,8 +191,10 @@ public class BrokerAgent {
     }
 
     public void updateTD() {
+        /* This is an out dated method from when the broker was an agent
+         * 
+         */
         determineReward();
-
         setTemporalDifference(
                 learningRate
                 * (getReward()
@@ -194,15 +206,23 @@ public class BrokerAgent {
     }
 
     public void determineReward() {
+        /* This is an out dated method from when the broker was an agent
+         * 
+         */
         reward = top5.get(0).getReward();
     }
 
     public void updateStateVariables() {
-
+        /* This is an out dated method from when the broker was an agent
+         * 
+         */
         indexOfPreviousBestMove = indexOfBestMove;
     }
 
     public void writeStateSpace() {
+        /* This is an out dated method from when the broker was an agent
+         * 
+         */
         try {
             fileWriter = new FileWriter("StatespaceBroker.txt");
             bufferedWriter = new BufferedWriter(fileWriter);
